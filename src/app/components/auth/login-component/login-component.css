@@ -228,3 +228,11 @@
     flex-direction: column;
   }
 }
+
+.error-message {
+  background-color: #fee;
+  color: #c00;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}

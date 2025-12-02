@@ -1,19 +1,25 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterLink } from "@angular/router";
+import { Router, RouterLink, ActivatedRoute } from "@angular/router";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../services/auth-service';
 import { GoogleOauth } from '../../../services/oauth/google-oauth';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login-component',
-  imports: [RouterLink, ReactiveFormsModule],
+  imports: [RouterLink, ReactiveFormsModule, CommonModule],
   templateUrl: './login-component.html',
   styleUrl: './login-component.css',
+  standalone: true
 })
 export class LoginComponent implements OnInit {
+  errorMessage: string = '';
+  
   constructor(
     private authService: AuthService,
-    private googleOauth: GoogleOauth
+    private googleOauthService: GoogleOauth, 
+    private router: Router,
+    private route: ActivatedRoute // For query params
   ) {}
 
   form = new FormGroup({
@@ -43,32 +49,52 @@ export class LoginComponent implements OnInit {
 
           console.log('Inicio de sesión exitoso', response);
           
-          this.form.reset();
+          // Navigate to dashboard after successful login
+          this.router.navigate(['/dashboard']);
         },
         error: (error) => {
           console.error('Error en el inicio de sesión', error);
+          this.errorMessage = 'Error en el inicio de sesión. Verifica tus credenciales.';
         }
       });
     }
   }
 
-  declare google: any;
-
-  ngOnInit(): void {
-    google.accounts.id.initialize({
-      client_id: "34673777282-0i68o5seih3unl80fbat9a49qerog1k2.apps.googleusercontent.com",
-      callback: this.handleCredentialResponse.bind(this)
-    });
-    // Render button or use One Tap prompt
-    google.accounts.id.renderButton(
-      document.getElementById("google-button"),
-      { theme: "outline", size: "large" } 
-    );
+  /**
+   * Initiates the OAuth flow by redirecting to Google.
+   */
+  loginWithGoogle() {
+    const authUrl = this.googleOauthService.getGoogleAuthUrl();
+    window.location.href = authUrl;
   }
 
-  handleCredentialResponse(response: any): void {
-    const idToken = response.credential;
-    // Send this token to your Express backend for verification and user authentication
-    this.google.googleLogin(idToken).subscribe(/* ... handle login ... */);
+  /**
+   * Checks for OAuth callback parameters when component loads.
+   */
+  ngOnInit(): void {
+    // Use ActivatedRoute for better query param handling
+    this.route.queryParams.subscribe(params => {
+      const token = params['token'];
+      const error = params['error'];
+
+      if (token) {
+        // Save the token
+        this.authService.setCookie(token);
+        console.log('Google OAuth successful. Token saved.');
+        
+        // Navigate to dashboard and clean URL
+        this.router.navigate(['/dashboard'], { 
+          replaceUrl: true 
+        });
+      } else if (error) {
+        console.error('Google OAuth failed:', decodeURIComponent(error));
+        this.errorMessage = 'Error al iniciar sesión con Google. Intenta nuevamente.';
+        
+        // Clean up URL
+        this.router.navigate(['/login'], { 
+          replaceUrl: true 
+        });
+      }
+    });
   }
 }
