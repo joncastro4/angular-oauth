@@ -1,1 +1,73 @@
-/* You can add global styles to this file, and also import other style files */
+:root{
+  --font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-size-base: 16px; /* ajuste global */
+  --line-height-base: 1.45;
+  --text-color: #111827;
+  --heading-weight: 600;
+  --body-weight: 400;
+  background-color: #2a2a2a;
+}
+
+/* caja y suavizado */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html {
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  color: var(--text-color);
+  line-height: var(--line-height-base);
+}
+
+/* Aplica la fuente a todo (por si hay componentes con estilos encapsulados) */
+body, app-root {
+  margin: 0;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: var(--body-weight);
+  background: #fff;
+  color: inherit;
+}
+
+/* tamaño y pesos escalados para encabezados */
+h1, h2, h3, h4, h5, h6 {
+  font-family: inherit;
+  font-weight: var(--heading-weight);
+  line-height: 1.2;
+  margin: 0 0 0.5rem 0;
+  color: inherit;
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.625rem; }
+h3 { font-size: 1.375rem; }
+h4 { font-size: 1.125rem; }
+h5 { font-size: 1rem; }
+h6 { font-size: 0.875rem; }
+
+/* textos, párrafos y enlaces */
+p, span, label, input, textarea, button, select {
+  font-family: inherit;
+  font-weight: var(--body-weight);
+  line-height: inherit;
+  font-size: 1rem;
+}
+
+/* inputs y botones */
+input, textarea, select, button {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* pequeñas mejoras accesibilidad */
+a { color: inherit; text-decoration: underline; }
+a:focus, button:focus, input:focus { outline: 3px solid rgba(59,130,246,0.25); outline-offset: 2px; }
+
+/* para reset de tipografías en componentes que usen shadow DOM o estilos encapsulados.
+   En Angular con ViewEncapsulation.Emulated los estilos globales aún aplican, 
+   pero si alguna librería importa otra tipografía, esta regla ayuda a forzar. */
+:root, body, app-root, * { font-family: var(--font-family) !important; }
